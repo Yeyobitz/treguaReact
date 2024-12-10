@@ -1,0 +1,79 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function getUserRole() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role;
+    }
+    
+    function hasRole(role) {
+      return isAuthenticated() && getUserRole() == role;
+    }
+    
+    // Role checks
+    function isAdmin() {
+      return hasRole('admin');
+    }
+    
+    function isManager() {
+      return hasRole('manager');
+    }
+    
+    function isCrew() {
+      return hasRole('crew');
+    }
+    
+    function hasValidRole() {
+      return isAdmin() || isManager() || isCrew();
+    }
+
+    // Invitations collection
+    match /invitations/{invitationId} {
+      allow read: if isAuthenticated() && (isAdmin() || isManager());
+      allow create: if isAuthenticated() && (isAdmin() || isManager());
+      allow update: if isAuthenticated() && (isAdmin() || isManager());
+      allow delete: if isAdmin();
+    }
+
+    // Users collection
+    match /users/{userId} {
+      allow read: if isAuthenticated() && (request.auth.uid == userId || hasValidRole());
+      allow create: if isAdmin() || (
+        // Allow creation with valid invitation
+        exists(/databases/$(database)/documents/invitations/$(request.resource.data.invitationId)) &&
+        !get(/databases/$(database)/documents/invitations/$(request.resource.data.invitationId)).data.used &&
+        get(/databases/$(database)/documents/invitations/$(request.resource.data.invitationId)).data.role == request.resource.data.role
+      );
+      allow update: if isAdmin() || (isManager() && resource.data.role == 'crew');
+      allow delete: if isAdmin();
+    }
+
+    // Rest of your existing rules...
+    match /dishes/{dishId} {
+      allow read: if true;
+      allow create, update: if hasValidRole();
+      allow delete: if isAdmin();
+    }
+
+    match /reservations/{reservationId} {
+      allow read: if true;
+      allow create: if true;
+      allow update: if hasValidRole();
+      allow delete: if isAdmin() || isManager();
+    }
+
+    match /notifications/{notificationId} {
+      allow read, write: if true;
+    }
+
+    match /config/{configId} {
+      allow read: if true;
+      allow write: if hasValidRole();
+    }
+  }
+}

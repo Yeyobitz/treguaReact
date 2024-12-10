@@ -1,0 +1,77 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function getUserRole() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role;
+    }
+    
+    function hasRole(role) {
+      return isAuthenticated() && getUserRole() == role;
+    }
+    
+    // Role checks
+    function isAdmin() {
+      return hasRole('admin');
+    }
+    
+    function isManager() {
+      return hasRole('manager');
+    }
+    
+    function isCrew() {
+      return hasRole('crew');
+    }
+    
+    function hasValidRole() {
+      return isAdmin() || isManager() || isCrew();
+    }
+
+    // Users collection
+    match /users/{userId} {
+      // Allow admins and managers to read users
+      allow read: if isAuthenticated() && (isAdmin() || isManager());
+      
+      // Allow admins to create and delete users
+      allow create, delete: if isAuthenticated() && isAdmin();
+      
+      // Allow admins to update any user, managers can only update crew
+      allow update: if isAuthenticated() && (
+        isAdmin() || 
+        (isManager() && resource.data.role == 'crew' && request.resource.data.role == 'crew')
+      );
+    }
+
+    // Invitations collection
+    match /invitations/{invitationId} {
+      allow read: if true;
+      allow create: if isAuthenticated() && (isAdmin() || isManager());
+      allow update: if true; // Needed for marking invitations as used
+    }
+
+    // Dishes collection
+    match /dishes/{dishId} {
+      allow read: if true;
+      allow create, update: if hasValidRole();
+      allow delete: if isAdmin();
+    }
+
+    // Reservations collection
+    match /reservations/{reservationId} {
+      allow read: if true;
+      allow create: if true;
+      allow update: if hasValidRole();
+      allow delete: if isAdmin() || isManager();
+    }
+
+    // Notifications collection
+    match /notifications/{notificationId} {
+      allow read, write: if true;
+    }
+  }
+}

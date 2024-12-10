@@ -1,0 +1,47 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    font-family: 'Work Sans', system-ui, sans-serif;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 500;
+  }
+
+  body {
+    @apply text-body text-primary antialiased;
+  }
+}
+
+@layer components {
+  .nav-link {
+    @apply text-small font-medium tracking-wider uppercase transition-colors;
+  }
+
+  .btn {
+    @apply inline-flex items-center justify-center px-6 py-3 text-small font-medium tracking-wider uppercase transition-all duration-200;
+  }
+
+  .btn-primary {
+    @apply bg-accent text-light hover:bg-accent/90 rounded-full;
+  }
+}
+
+@keyframes slide-up {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.animate-slide-up {
+  animation: slide-up 0.3s ease-out forwards;
+}
