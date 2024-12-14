@@ -1,7 +1,7 @@
 import { collection, addDoc, getDocs, doc, updateDoc, query, orderBy, getDoc } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { CreateReservationDTO, Reservation } from '../types/reservation';
-import { sendNotification } from './notifications';
+import { smsService } from './notifications/smsService';
 
 const COLLECTION = 'reservations';
 
@@ -30,7 +30,14 @@ export async function createReservation(data: CreateReservationDTO) {
       createdAt: new Date().toISOString()
     };
     
-    await sendNotification('new', reservation);
+    // Enviar SMS directamente
+    try {
+      await smsService.sendCustomerSMS('new', reservation);
+      await smsService.sendAdminSMS(reservation);
+      console.log('SMS sent successfully');
+    } catch (error) {
+      console.error('Error sending SMS:', error);
+    }
     
     return docRef.id;
   } catch (error) {
@@ -74,7 +81,13 @@ export async function updateReservationStatus(id: string, status: Reservation['s
       status 
     } as Reservation;
     
-    await sendNotification('status_update', reservation);
+    // Enviar SMS de actualización de estado
+    try {
+      await smsService.sendCustomerSMS('status_update', reservation);
+      console.log('Status update SMS sent successfully');
+    } catch (error) {
+      console.error('Error sending status update SMS:', error);
+    }
 
     return reservation;
   } catch (error) {
@@ -103,7 +116,13 @@ export async function cancelReservation(id: string) {
       status: 'cancelled' as const
     } as Reservation;
     
-    await sendNotification('cancellation', reservation);
+    // Enviar SMS de cancelación
+    try {
+      await smsService.sendCustomerSMS('cancellation', reservation);
+      console.log('Cancellation SMS sent successfully');
+    } catch (error) {
+      console.error('Error sending cancellation SMS:', error);
+    }
 
     return reservation;
   } catch (error) {
