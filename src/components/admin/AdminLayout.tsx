@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { useNavigate, Outlet } from 'react-router-dom';
+import { useNavigate, Outlet, Link } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import { AdminNavbar } from './AdminNavbar';
 import { AdminSidebar } from './AdminSidebar';

@@ -30,24 +30,11 @@ export function Header() {
   }, [isHomePage]);
 
   return (
-    <header 
-      className={`fixed w-full z-50 transition-all duration-300 ${
-        isScrolled || isMenuOpen ? 'bg-primary shadow-lg' : 'bg-transparent'
-      }`}
-    >
+    <header className="fixed w-full z-50 bg-primary/95 backdrop-blur-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-20">
-          {/* Logo */}
-          <Link 
-            to="/" 
-            className={`transition-all duration-500 ${
-              isHomePage && isHeroVisible ? 'opacity-0 -translate-x-4' : 'opacity-100 translate-x-0'
-            }`}
-          >
-            <div className="flex flex-col">
-              <span className="text-light text-lg font-serif">Tregua</span>
-              <span className="text-neutral text-xs italic">Cocina de autor</span>
-            </div>
+        <div className="flex justify-between items-center h-16">
+          <Link to="/" className="text-2xl font-serif text-light">
+            Tregua
           </Link>
           
           {/* Navigation Links - Desktop */}
@@ -58,12 +45,30 @@ export function Header() {
             />
           </nav>
 
-          {/* Social Icons and Mobile Menu Toggle */}
-          <div className="flex items-center space-x-4">
+          {/* Auth Links and Social Icons */}
+          <div className="flex items-center space-x-6">
+            {/* Auth Links */}
+            <div className="hidden md:flex items-center space-x-4">
+              <Link 
+                to="/login"
+                className="text-light hover:text-accent transition-colors text-sm tracking-wide"
+              >
+                Iniciar Sesión
+              </Link>
+              <Link 
+                to="/signup"
+                className="px-4 py-2 bg-accent text-light rounded-full hover:bg-accent/90 transition-colors text-sm tracking-wide"
+              >
+                Crear Cuenta
+              </Link>
+            </div>
+
+            {/* Social Icons */}
             <div className="hidden md:flex items-center">
               <SocialIcons />
             </div>
 
+            {/* Mobile Menu Button */}
             <button 
               className="md:hidden text-light p-2 hover:text-accent transition-colors"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
@@ -79,7 +84,28 @@ export function Header() {
         </div>
       </div>
       
-      <MobileMenu isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
+      {/* Mobile Menu */}
+      <MobileMenu isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)}>
+        <div className="px-4 py-3 space-y-4">
+          {/* Mobile Auth Links */}
+          <div className="flex flex-col space-y-2">
+            <Link 
+              to="/login"
+              className="text-light hover:text-accent transition-colors text-sm tracking-wide text-center py-2"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              Iniciar Sesión
+            </Link>
+            <Link 
+              to="/signup"
+              className="px-4 py-2 bg-accent text-light rounded-full hover:bg-accent/90 transition-colors text-sm tracking-wide text-center"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              Crear Cuenta
+            </Link>
+          </div>
+        </div>
+      </MobileMenu>
     </header>
   );
 }
