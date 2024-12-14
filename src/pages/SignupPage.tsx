@@ -125,3 +125,5 @@ export function SignupPage() {
     </div>
   );
 } 
+
+//TODO: Agregar validaciones de contraseña
