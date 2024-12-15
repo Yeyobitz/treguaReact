@@ -3,14 +3,19 @@ import { Dish } from '../../../types/dish';
 import { DishForm } from './DishForm';
 import { Edit, Trash2, Star } from 'lucide-react';
 import { useDishStore } from '../../../stores/useDishStore';
+import { useAuth } from '../../../hooks/useAuth';
 
 interface DishListProps {
   dishes: Dish[];
 }
 
 export function DishList({ dishes }: DishListProps) {
+  const { role } = useAuth();
   const [editingDish, setEditingDish] = useState<Dish | null>(null);
   const { deleteDish } = useDishStore();
+
+  const canDelete = role === 'admin';
+  const canEdit = role === 'admin' || role === 'manager';
 
   const handleDelete = async (id: string) => {
     if (window.confirm('¿Está seguro que desea eliminar este plato?')) {
@@ -57,20 +62,24 @@ export function DishList({ dishes }: DishListProps) {
                 {dish.category}
               </span>
               <div className="flex space-x-2">
-                <button
-                  onClick={() => setEditingDish(dish)}
-                  className="p-2 text-primary/60 dark:text-light/60 hover:text-primary dark:hover:text-light transition-colors"
-                  title="Editar plato"
-                >
-                  <Edit className="w-5 h-5" />
-                </button>
-                <button
-                  onClick={() => handleDelete(dish.id!)}
-                  className="p-2 text-red-500 hover:text-red-600 transition-colors"
-                  title="Eliminar plato"
-                >
-                  <Trash2 className="w-5 h-5" />
-                </button>
+                {canEdit && (
+                  <button
+                    onClick={() => setEditingDish(dish)}
+                    className="p-2 text-primary/60 dark:text-light/60 hover:text-primary dark:hover:text-light transition-colors"
+                    title="Editar plato"
+                  >
+                    <Edit className="w-5 h-5" />
+                  </button>
+                )}
+                {canDelete && (
+                  <button
+                    onClick={() => handleDelete(dish.id!)}
+                    className="p-2 text-red-500 hover:text-red-600 transition-colors"
+                    title="Eliminar plato"
+                  >
+                    <Trash2 className="w-5 h-5" />
+                  </button>
+                )}
               </div>
             </div>
           </div>

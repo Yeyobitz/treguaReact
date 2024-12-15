@@ -83,13 +83,21 @@ function App() {
           
           {/* Admin routes */}
           <Route path="/admin/*" element={
-            <ProtectedRoute requiredRole="admin">
+            <ProtectedRoute requiredRole={['admin', 'manager', 'crew']}>
               <AdminLayout />
             </ProtectedRoute>
           }>
             <Route path="reservas" element={<AdminReservasPage />} />
-            <Route path="platos" element={<AdminDishesPage />} />
-            <Route path="usuarios" element={<AdminUsersPage />} />
+            <Route path="platos" element={
+              <ProtectedRoute requiredRole={['admin', 'manager']}>
+                <AdminDishesPage />
+              </ProtectedRoute>
+            } />
+            <Route path="usuarios" element={
+              <ProtectedRoute requiredRole={['admin', 'manager']}>
+                <AdminUsersPage />
+              </ProtectedRoute>
+            } />
           </Route>
         </Routes>
       </BrowserRouter>
