@@ -2,6 +2,7 @@ import { collection, addDoc, getDocs, doc, updateDoc, query, orderBy, getDoc } f
 import { db } from '../lib/firebase';
 import { CreateReservationDTO, Reservation } from '../types/reservation';
 import { smsService } from './notifications/smsService';
+import { sendCustomerEmail, sendAdminEmail } from './notifications/emailService';
 
 const COLLECTION = 'reservations';
 
@@ -9,11 +10,15 @@ export async function createReservation(data: CreateReservationDTO) {
   try {
     // Ensure the date is stored in ISO format at UTC midnight
     const reservationDate = new Date(data.date);
+    
     const utcDate = new Date(Date.UTC(
       reservationDate.getFullYear(),
       reservationDate.getMonth(),
       reservationDate.getDate()
     ));
+
+    
+    
 
     const docRef = await addDoc(collection(db, COLLECTION), {
       ...data,
@@ -30,15 +35,18 @@ export async function createReservation(data: CreateReservationDTO) {
       createdAt: new Date().toISOString()
     };
     
-    // Enviar SMS directamente
+    // Send both notifications
     try {
-      await smsService.sendCustomerSMS('new', reservation);
-      await smsService.sendAdminSMS(reservation);
-      console.log('SMS sent successfully');
+      await Promise.all([
+        smsService.sendCustomerSMS('new', reservation),
+        smsService.sendAdminSMS(reservation),
+        sendCustomerEmail('new', reservation),
+        sendAdminEmail(reservation)  // Add this line
+      ]);
+      console.log('Notifications sent successfully');
     } catch (error) {
-      console.error('Error sending SMS:', error);
+      console.error('Error sending notifications:', error);
     }
-    
     return docRef.id;
   } catch (error) {
     console.error('Error creating reservation:', error);
@@ -81,12 +89,15 @@ export async function updateReservationStatus(id: string, status: Reservation['s
       status 
     } as Reservation;
     
-    // Enviar SMS de actualización de estado
+    // Send both notifications
     try {
-      await smsService.sendCustomerSMS('status_update', reservation);
-      console.log('Status update SMS sent successfully');
+      await Promise.all([
+        smsService.sendCustomerSMS('status_update', reservation),
+        sendCustomerEmail('status_update', reservation)
+      ]);
+      console.log('Status update notifications sent successfully');
     } catch (error) {
-      console.error('Error sending status update SMS:', error);
+      console.error('Error sending status update notifications:', error);
     }
 
     return reservation;
@@ -95,6 +106,7 @@ export async function updateReservationStatus(id: string, status: Reservation['s
     throw new Error('Error al actualizar el estado de la reserva');
   }
 }
+
 
 export async function cancelReservation(id: string) {
   try {
@@ -116,12 +128,15 @@ export async function cancelReservation(id: string) {
       status: 'cancelled' as const
     } as Reservation;
     
-    // Enviar SMS de cancelación
+    // Send both notifications
     try {
-      await smsService.sendCustomerSMS('cancellation', reservation);
-      console.log('Cancellation SMS sent successfully');
+      await Promise.all([
+        smsService.sendCustomerSMS('cancellation', reservation),
+        sendCustomerEmail('cancellation', reservation)
+      ]);
+      console.log('Cancellation notifications sent successfully');
     } catch (error) {
-      console.error('Error sending cancellation SMS:', error);
+      console.error('Error sending cancellation notifications:', error);
     }
 
     return reservation;

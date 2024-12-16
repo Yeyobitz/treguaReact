@@ -124,6 +124,10 @@ export function SignupPage() {
       </div>
     </div>
   );
+<<<<<<< HEAD
+} 
+=======
 } 
 
 //TODO: Agregar validaciones de contraseña
+>>>>>>> aeb5e800b3e81837841ec0f3c7e5318d1e3f3083

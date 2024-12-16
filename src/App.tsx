@@ -19,7 +19,7 @@ import { RegisterPage } from './pages/RegisterPage';
 import { LoginPage } from './pages/LoginPage';
 import { SignupPage } from './pages/SignupPage';
 import { AuthProvider } from './contexts/AuthContext';
-import { ProtectedRoute } from './components/auth/ProtectedRoute';
+<<<<<<< HEAD
 
 function App() {
   return (
@@ -75,6 +75,71 @@ function App() {
             </>
           } />
 
+=======
+import { ProtectedRoute } from './components/auth/ProtectedRoute';
+
+import React, { useEffect } from 'react'
+import { testEmailService } from './services/notifications/emailService'
+
+function App() {
+  useEffect(() => {
+    (window as any).testEmailService = testEmailService
+  }, [])
+
+  return (
+    <AuthProvider>
+      <BrowserRouter>
+        <Routes>
+          {/* Public routes */}
+          <Route path="/" element={
+            <div className="min-h-screen">
+              <Header />
+              <main>
+                <Hero />
+                <Story />
+                <FeaturedDishes />
+                <ReservationCTA />
+              </main>
+              <Footer />
+            </div>
+          } />
+          <Route path="/platos/:id" element={
+            <>
+              <Header />
+              <DishDetail />
+              <Footer />
+            </>
+          } />
+          <Route path="/reservas" element={
+            <>
+              <Header />
+              <ReservasPage />
+              <Footer />
+            </>
+          } />
+          <Route path="/platos" element={
+            <>
+              <Header />
+              <PlatosPage />
+              <Footer />
+            </>
+          } />
+          <Route path="/nosotros" element={
+            <>
+              <Header />
+              <NosotrosPage />
+              <Footer />
+            </>
+          } />
+          <Route path="/contacto" element={
+            <>
+              <Header />
+              <ContactoPage />
+              <Footer />
+            </>
+          } />
+
+>>>>>>> aeb5e800b3e81837841ec0f3c7e5318d1e3f3083
           {/* Auth routes */}
           <Route path="/admin" element={<AdminLoginPage />} />
           <Route path="/registro" element={<RegisterPage />} />
@@ -82,6 +147,12 @@ function App() {
           <Route path="/signup" element={<SignupPage />} />
           
           {/* Admin routes */}
+<<<<<<< HEAD
+          <Route path="/admin/*" element={<AdminLayout />}>
+            <Route path="reservas" element={<AdminReservasPage />} />
+            <Route path="platos" element={<AdminDishesPage />} />
+            <Route path="usuarios" element={<AdminUsersPage />} />
+=======
           <Route path="/admin/*" element={
             <ProtectedRoute requiredRole={['admin', 'manager', 'crew']}>
               <AdminLayout />
@@ -98,6 +169,7 @@ function App() {
                 <AdminUsersPage />
               </ProtectedRoute>
             } />
+>>>>>>> aeb5e800b3e81837841ec0f3c7e5318d1e3f3083
           </Route>
         </Routes>
       </BrowserRouter>
