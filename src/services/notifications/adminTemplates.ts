@@ -3,19 +3,26 @@ import { Reservation } from '../../types/reservation';
 export const adminTemplates = {
   email: (reservation: Reservation) => ({
     subject: 'Nueva reserva recibida - Tregua',
-    text: `
-      Nueva reserva recibida:
-      
-      Nombre: ${reservation.name}
-      Email: ${reservation.email}
-      Teléfono: ${reservation.phone}
-      Fecha: ${reservation.date}
-      Hora: ${reservation.time}
-      Personas: ${reservation.guests}
-      Notas: ${reservation.notes || 'Sin notas'}
+    html: `
+      <div>
+        <h2>Tregua Restaurant</h2>
+        <p>Nueva reserva recibida:</p>
+        
+        <div>
+          <ul>
+            <li>Nombre: ${reservation.name}</li>
+            <li>Email: ${reservation.email}</li>
+            <li>Teléfono: ${reservation.phone}</li>
+            <li>Fecha: ${reservation.date}</li>
+            <li>Hora: ${reservation.time}</li>
+            <li>Personas: ${reservation.guests}</li>
+            ${reservation.notes ? `<li>Notas: ${reservation.notes}</li>` : ''}
+          </ul>
+        </div>
+        
+        <p>Por favor, revise y confirme la reserva.</p>
+        <p>Saludos,<br>Sistema de Reservas Tregua</p>
+      </div>
     `
-  }),
-  
-  sms: (reservation: Reservation) => 
-    `Tregua: Nueva reserva de ${reservation.name} para ${reservation.guests} personas el ${reservation.date} a las ${reservation.time}`
+  })
 };

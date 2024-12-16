@@ -21,7 +21,14 @@ import { SignupPage } from './pages/SignupPage';
 import { AuthProvider } from './contexts/AuthContext';
 import { ProtectedRoute } from './components/auth/ProtectedRoute';
 
+import React, { useEffect } from 'react'
+import { testEmailService } from './services/notifications/emailService'
+
 function App() {
+  useEffect(() => {
+    (window as any).testEmailService = testEmailService
+  }, [])
+
   return (
     <AuthProvider>
       <BrowserRouter>
