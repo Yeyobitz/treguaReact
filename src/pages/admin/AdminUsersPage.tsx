@@ -1,45 +1,135 @@
-import { useState } from 'react';
-import { Plus } from 'lucide-react';
-import { InviteUserForm } from '../../components/admin/users/InviteUserForm';
+import { useState, useEffect } from 'react';
+import { Edit } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
-import { Toast } from '../../components/ui/Toast';
 import { useToast } from '../../hooks/useToast';
+import { collection, query, getDocs } from 'firebase/firestore';
+import { db } from '../../lib/firebase';
+import { EditUserRole } from '../../components/admin/users/EditUserRole';
+
+interface UserData {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+  createdAt: string;
+}
 
 export function AdminUsersPage() {
-  const [isInviteFormOpen, setIsInviteFormOpen] = useState(false);
-  const { role } = useAuth();
-  const { toast, hideToast } = useToast();
+  const [users, setUsers] = useState<UserData[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [editingUser, setEditingUser] = useState<UserData | null>(null);
+  const { user } = useAuth();
+  const { showToast } = useToast();
 
-  if (!role || (role !== 'admin' && role !== 'manager')) {
+  const fetchUsers = async () => {
+    try {
+      const usersRef = collection(db, 'users');
+      const q = query(usersRef);
+      const querySnapshot = await getDocs(q);
+      
+      const usersData = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      })) as UserData[];
+
+      setUsers(usersData);
+    } catch (error) {
+      showToast('Error al cargar usuarios', 'error');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchUsers();
+  }, []);
+
+  if (!user || user.role !== 'admin') {
     return (
-      <div className="text-center py-8 text-primary/60 dark:text-light/60">
-        No tienes permisos para acceder a esta página.
+      <div className="text-center py-8">
+        No tienes permisos para ver esta página
+      </div>
+    );
+  }
+
+  if (loading) {
+    return (
+      <div className="text-center py-8">
+        Cargando usuarios...
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-serif text-primary dark:text-light">Gestión de Usuarios</h1>
-        <button
-          onClick={() => setIsInviteFormOpen(true)}
-          className="inline-flex items-center px-4 py-2 bg-accent text-light rounded-lg hover:bg-accent/90 transition-colors"
-        >
-          <Plus className="w-5 h-5 mr-2" />
-          Crear código invitación
-        </button>
+    <div className="p-6">
+      <div className="mb-6 flex justify-between items-center">
+        <h1 className="text-2xl font-bold text-primary">Usuarios Registrados</h1>
       </div>
 
-      {isInviteFormOpen && (
-        <InviteUserForm onClose={() => setIsInviteFormOpen(false)} />
-      )}
+      <div className="bg-white shadow-md rounded-lg overflow-hidden">
+        <table className="min-w-full divide-y divide-gray-200">
+          <thead className="bg-gray-50">
+            <tr>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Nombre
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Email
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Rol
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Fecha de Registro
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Acciones
+              </th>
+            </tr>
+          </thead>
+          <tbody className="bg-white divide-y divide-gray-200">
+            {users.map((userData) => (
+              <tr key={userData.id}>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <div className="text-sm font-medium text-gray-900">
+                    {userData.name}
+                  </div>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <div className="text-sm text-gray-500">
+                    {userData.email}
+                  </div>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                    ${userData.role === 'admin' ? 'bg-red-100 text-red-800' : 
+                      userData.role === 'customer' ? 'bg-green-100 text-green-800' : 
+                      'bg-blue-100 text-blue-800'}`}>
+                    {userData.role}
+                  </span>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  {new Date(userData.createdAt).toLocaleDateString()}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                  <button
+                    onClick={() => setEditingUser(userData)}
+                    className="text-accent hover:text-accent/80 transition-colors"
+                  >
+                    <Edit className="w-5 h-5" />
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
-      {toast && (
-        <Toast
-          message={toast.message}
-          type={toast.type}
-          onClose={hideToast}
+      {editingUser && (
+        <EditUserRole
+          user={editingUser}
+          onClose={() => setEditingUser(null)}
+          onUpdate={fetchUsers}
         />
       )}
     </div>
