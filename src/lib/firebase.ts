@@ -3,15 +3,14 @@ import { getFirestore, enableIndexedDbPersistence } from 'firebase/firestore';
 import { getAuth, connectAuthEmulator } from 'firebase/auth';
 
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-  appId: import.meta.env.VITE_FIREBASE_APP_ID,
-  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID
+  apiKey: "AIzaSyARKrdbiAb7QwNKY4tss9XC0YXLZ9sSihQ",
+  authDomain: "tregua-6fe9e.firebaseapp.com",
+  projectId: "tregua-6fe9e",
+  storageBucket: "tregua-6fe9e.firebasestorage.app",
+  messagingSenderId: "456357954548",
+  appId: "1:456357954548:web:76b978da52fe591b9b2fa1",
+  measurementId: "G-PW4B3FC4ME"
 };
-
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 
