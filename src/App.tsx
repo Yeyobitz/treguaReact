@@ -21,10 +21,9 @@ const AdminLoginPage = lazy(() => import('./pages/admin/AdminLoginPage').then(mo
 const AdminLayout = lazy(() => import('./components/admin/AdminLayout').then(module => ({ default: module.AdminLayout })));
 const AdminReservasPage = lazy(() => import('./pages/admin/AdminReservasPage').then(module => ({ default: module.AdminReservasPage })));
 const AdminUsersPage = lazy(() => import('./pages/admin/AdminUsersPage').then(module => ({ default: module.AdminUsersPage })));
-const RegisterPage = lazy(() => import('./pages/RegisterPage').then(module => ({ default: module.RegisterPage })));
 const LoginPage = lazy(() => import('./pages/LoginPage').then(module => ({ default: module.LoginPage })));
-const SignupPage = lazy(() => import('./pages/SignupPage').then(module => ({ default: module.SignupPage })));
 const ProfilePage = lazy(() => import('./pages/ProfilePage').then(module => ({ default: module.ProfilePage })));
+const AdminDishesPage = lazy(() => import('./pages/admin/AdminDishesPage').then(module => ({ default: module.AdminDishesPage })));
 
 // Componente de carga
 const LoadingSpinner = () => (
@@ -75,9 +74,9 @@ function App() {
 
             {/* Auth routes */}
             <Route path="/admin" element={<AdminLoginPage />} />
-            <Route path="/registro" element={<RegisterPage />} />
+            <Route path="/registro" element={<LoginPage />} />
             <Route path="/login" element={<LoginPage />} />
-            <Route path="/signup" element={<SignupPage />} />
+            <Route path="/signup" element={<LoginPage />} />
             <Route path="/perfil" element={
               <ProtectedRoute>
                 <PublicLayout>
@@ -95,7 +94,7 @@ function App() {
               <Route path="reservas" element={<AdminReservasPage />} />
               <Route path="platos" element={
                 <ProtectedRoute requiredRole={['admin', 'manager']}>
-                  <AdminUsersPage />
+                  <AdminDishesPage />
                 </ProtectedRoute>
               } />
               <Route path="usuarios" element={
