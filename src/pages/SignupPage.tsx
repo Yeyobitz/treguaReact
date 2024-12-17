@@ -123,7 +123,6 @@ export function SignupPage() {
         </form>
       </div>
     </div>
-  );
-} 
+  )
+}
 
-//TODO: Agregar validaciones de contraseña

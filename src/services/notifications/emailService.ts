@@ -3,7 +3,6 @@ import { Reservation } from '../../types/reservation';
 import { emailTemplates } from './emailTemplates';
 import { NotificationType } from './types';
 import { adminTemplates } from './adminTemplates';
-
 const EMAIL_SERVICE_ID = import.meta.env.VITE_EMAILJS_SERVICE_ID;
 const EMAIL_SERVICE_ID_2 = import.meta.env.VITE_EMAILJS_SERVICE_ID_2;
 const EMAIL_TEMPLATE_ID = import.meta.env.VITE_EMAILJS_TEMPLATE_ID;
