@@ -21,14 +21,7 @@ import { SignupPage } from './pages/SignupPage';
 import { AuthProvider } from './contexts/AuthContext';
 import { ProtectedRoute } from './components/auth/ProtectedRoute';
 
-import React, { useEffect } from 'react'
-import { testEmailService } from './services/notifications/emailService'
-
 function App() {
-  useEffect(() => {
-    (window as any).testEmailService = testEmailService
-  }, [])
-
   return (
     <AuthProvider>
       <BrowserRouter>
@@ -87,7 +80,7 @@ function App() {
           <Route path="/registro" element={<RegisterPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignupPage />} />
-          
+         
           {/* Admin routes */}
           <Route path="/admin/*" element={
             <ProtectedRoute requiredRole={['admin', 'manager', 'crew']}>
