@@ -1,17 +1,93 @@
+import { useState, useEffect } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { useReservationStore } from '../stores/useReservationStore';
-import { useEffect } from 'react';
-import { format } from 'date-fns';
+import { format, parseISO } from 'date-fns';
 import { es } from 'date-fns/locale';
-import { Calendar, Clock, Users } from 'lucide-react';
+import { Calendar, Clock, Users, X } from 'lucide-react';
+import { useToast } from '../hooks/useToast';
+import { cancelReservation } from '../services/reservations';
+
+interface CancelModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onConfirm: () => void;
+  reservationId: string;
+}
+
+function CancelModal({ isOpen, onClose, onConfirm, reservationId }: CancelModalProps) {
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+      <div className="bg-white dark:bg-primary rounded-lg p-6 max-w-md w-full mx-4">
+        <div className="flex justify-between items-start mb-4">
+          <h3 className="text-lg font-medium text-primary dark:text-light">
+            Cancelar Reserva #{reservationId.slice(-4)}
+          </h3>
+          <button
+            onClick={onClose}
+            className="text-primary/60 dark:text-light/60 hover:text-primary dark:hover:text-light"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+        
+        <p className="text-primary/80 dark:text-light/80 mb-6">
+          ¿Estás seguro que deseas cancelar esta reserva? Esta acción no se puede deshacer.
+        </p>
+
+        <div className="flex justify-end gap-4">
+          <button
+            onClick={onClose}
+            className="px-4 py-2 text-sm font-medium text-primary/80 dark:text-light/80 hover:text-primary dark:hover:text-light"
+          >
+            Volver
+          </button>
+          <button
+            onClick={onConfirm}
+            className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700"
+          >
+            Cancelar Reserva
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export function ProfilePage() {
   const { user } = useAuth();
   const { reservations, fetchReservations } = useReservationStore();
+  const { showToast } = useToast();
+  const [cancelModalOpen, setCancelModalOpen] = useState(false);
+  const [selectedReservation, setSelectedReservation] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     fetchReservations();
   }, [fetchReservations]);
+
+  const handleCancelClick = (reservationId: string) => {
+    setSelectedReservation(reservationId);
+    setCancelModalOpen(true);
+  };
+
+  const handleCancelConfirm = async () => {
+    if (!selectedReservation) return;
+    
+    setLoading(true);
+    try {
+      await cancelReservation(selectedReservation);
+      await fetchReservations();
+      showToast('Reserva cancelada exitosamente', 'success');
+    } catch (error) {
+      showToast('Error al cancelar la reserva', 'error');
+    } finally {
+      setLoading(false);
+      setCancelModalOpen(false);
+      setSelectedReservation(null);
+    }
+  };
 
   // Filtrar reservas del usuario actual
   const userReservations = reservations.filter(
@@ -60,20 +136,31 @@ export function ProfilePage() {
                     <h3 className="text-lg font-medium text-primary dark:text-light">
                       Reserva #{reservation.id.slice(-4)}
                     </h3>
-                    <span className={`
-                      px-3 py-1 rounded-full text-sm font-medium
-                      ${reservation.status === 'confirmed' 
-                        ? 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400'
-                        : reservation.status === 'cancelled'
-                        ? 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400'
-                        : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400'
-                      }
-                    `}>
-                      {reservation.status === 'confirmed' ? 'Confirmada'
-                        : reservation.status === 'cancelled' ? 'Cancelada'
-                        : 'Pendiente'
-                      }
-                    </span>
+                    <div className="flex items-center gap-4">
+                      <span className={`
+                        px-3 py-1 rounded-full text-sm font-medium
+                        ${reservation.status === 'confirmed' 
+                          ? 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400'
+                          : reservation.status === 'cancelled'
+                          ? 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400'
+                          : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400'
+                        }
+                      `}>
+                        {reservation.status === 'confirmed' ? 'Confirmada'
+                          : reservation.status === 'cancelled' ? 'Cancelada'
+                          : 'Pendiente'
+                        }
+                      </span>
+                      {reservation.status !== 'cancelled' && (
+                        <button
+                          onClick={() => handleCancelClick(reservation.id)}
+                          disabled={loading}
+                          className="text-sm text-red-600 hover:text-red-700 disabled:opacity-50"
+                        >
+                          Cancelar
+                        </button>
+                      )}
+                    </div>
                   </div>
 
                   {/* Detalles de la reserva */}
@@ -83,7 +170,7 @@ export function ProfilePage() {
                       <div>
                         <p className="text-sm text-primary/60 dark:text-light/60">Fecha</p>
                         <p className="text-primary dark:text-light">
-                          {format(new Date(reservation.date), "d 'de' MMMM, yyyy", { locale: es })}
+                          {format(parseISO(reservation.date), "d 'de' MMMM, yyyy", { locale: es })}
                         </p>
                       </div>
                     </div>
@@ -120,6 +207,16 @@ export function ProfilePage() {
           )}
         </div>
       </div>
+
+      <CancelModal
+        isOpen={cancelModalOpen}
+        onClose={() => {
+          setCancelModalOpen(false);
+          setSelectedReservation(null);
+        }}
+        onConfirm={handleCancelConfirm}
+        reservationId={selectedReservation || ''}
+      />
     </div>
   );
 }
