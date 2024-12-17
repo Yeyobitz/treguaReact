@@ -11,9 +11,8 @@ export function Story() {
         
         <div className="prose prose-lg mx-auto text-primary/80 leading-relaxed">
           <p className="mb-8">
-            En diciembre de 2024, Tregua abrió sus puertas en el corazón de Villarrica, 
-            trayendo una propuesta gastronómica única que fusiona la riqueza de los 
-            ingredientes locales con técnicas culinarias contemporáneas.
+            En diciembre de 2024, Tregua abrió sus puertas en Villarrica, 
+            fusionando ingredientes locales con técnicas contemporáneas.
           </p>
 
           <button 

@@ -4,23 +4,7 @@ import { heroImages } from '../config/images';
 
 export function Hero() {
   const [currentImage, setCurrentImage] = useState(0);
-  const [imagesLoaded, setImagesLoaded] = useState<boolean[]>(new Array(heroImages.length).fill(false));
   const { smoothNavigate } = useSmoothScroll();
-
-  // Precargar las imágenes
-  useEffect(() => {
-    heroImages.forEach((image, index) => {
-      const img = new Image();
-      img.src = image.webp;
-      img.onload = () => {
-        setImagesLoaded(prev => {
-          const newState = [...prev];
-          newState[index] = true;
-          return newState;
-        });
-      };
-    });
-  }, []);
 
   // Carrusel automático
   useEffect(() => {
@@ -56,9 +40,7 @@ export function Hero() {
               <img
                 src={image.thumbnail}
                 alt={image.alt}
-                className={`w-full h-full object-cover ${
-                  imagesLoaded[index] ? 'opacity-100' : 'opacity-0'
-                } transition-opacity duration-500`}
+                className="w-full h-full object-cover transition-opacity duration-500"
                 loading={index === 0 ? 'eager' : 'lazy'}
               />
             </picture>
