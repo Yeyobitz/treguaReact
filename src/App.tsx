@@ -24,6 +24,7 @@ const AdminUsersPage = lazy(() => import('./pages/admin/AdminUsersPage').then(mo
 const LoginPage = lazy(() => import('./pages/LoginPage').then(module => ({ default: module.LoginPage })));
 const ProfilePage = lazy(() => import('./pages/ProfilePage').then(module => ({ default: module.ProfilePage })));
 const AdminDishesPage = lazy(() => import('./pages/admin/AdminDishesPage').then(module => ({ default: module.AdminDishesPage })));
+const UnauthorizedPage = lazy(() => import('./pages/UnauthorizedPage').then(module => ({ default: module.UnauthorizedPage })));
 
 // Componente de carga
 const LoadingSpinner = () => (
@@ -77,6 +78,7 @@ function App() {
             <Route path="/registro" element={<LoginPage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/signup" element={<LoginPage />} />
+            <Route path="/unauthorized" element={<UnauthorizedPage />} />
             <Route path="/perfil" element={
               <ProtectedRoute>
                 <PublicLayout>

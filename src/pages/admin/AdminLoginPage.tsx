@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../../lib/firebase';
@@ -8,19 +8,54 @@ export function AdminLoginPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [loginAttempts, setLoginAttempts] = useState(0);
+  const [lockoutUntil, setLockoutUntil] = useState<Date | null>(null);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const savedLockout = localStorage.getItem('adminLoginLockout');
+    if (savedLockout) {
+      const lockoutTime = new Date(savedLockout);
+      if (lockoutTime > new Date()) {
+        setLockoutUntil(lockoutTime);
+      } else {
+        localStorage.removeItem('adminLoginLockout');
+      }
+    }
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Verificar si está bloqueado
+    if (lockoutUntil && lockoutUntil > new Date()) {
+      const minutesLeft = Math.ceil((lockoutUntil.getTime() - new Date().getTime()) / 60000);
+      setError(`Demasiados intentos. Por favor espera ${minutesLeft} minutos.`);
+      return;
+    }
+
     setError(null);
     setLoading(true);
 
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      navigate('/admin/dashboard');
+      setLoginAttempts(0);
+      localStorage.removeItem('adminLoginLockout');
+      navigate('/admin/reservas');
     } catch (err: any) {
       console.error('Login error:', err);
-      setError('Credenciales inválidas');
+      const newAttempts = loginAttempts + 1;
+      setLoginAttempts(newAttempts);
+      
+      // Bloquear después de 5 intentos
+      if (newAttempts >= 5) {
+        const lockoutTime = new Date(new Date().getTime() + 15 * 60000); // 15 minutos
+        setLockoutUntil(lockoutTime);
+        localStorage.setItem('adminLoginLockout', lockoutTime.toISOString());
+        setError('Demasiados intentos. Por favor espera 15 minutos.');
+      } else {
+        setError('Credenciales inválidas');
+      }
     } finally {
       setLoading(false);
     }
