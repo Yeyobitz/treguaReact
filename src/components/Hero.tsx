@@ -1,40 +1,74 @@
 import { useState, useEffect } from 'react';
 import { useSmoothScroll } from '../hooks/useSmoothScroll';
-
-const images = [
-  "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&q=80",
-  "https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&q=80",
-  "https://images.unsplash.com/photo-1551326844-4df70f78d0e9?auto=format&fit=crop&q=80"
-];
+import { heroImages } from '../config/images';
 
 export function Hero() {
   const [currentImage, setCurrentImage] = useState(0);
+  const [imagesLoaded, setImagesLoaded] = useState<boolean[]>(new Array(heroImages.length).fill(false));
   const { smoothNavigate } = useSmoothScroll();
 
+  // Precargar las imágenes
+  useEffect(() => {
+    heroImages.forEach((image, index) => {
+      const img = new Image();
+      img.src = image.webp;
+      img.onload = () => {
+        setImagesLoaded(prev => {
+          const newState = [...prev];
+          newState[index] = true;
+          return newState;
+        });
+      };
+    });
+  }, []);
+
+  // Carrusel automático
   useEffect(() => {
     const interval = setInterval(() => {
-      setCurrentImage((prev) => (prev + 1) % images.length);
+      setCurrentImage((prev) => (prev + 1) % heroImages.length);
     }, 5000);
 
     return () => clearInterval(interval);
   }, []);
 
+  // Precargar la siguiente imagen
+  useEffect(() => {
+    const nextIndex = (currentImage + 1) % heroImages.length;
+    const nextImage = new Image();
+    nextImage.src = heroImages[nextIndex].webp;
+  }, [currentImage]);
+
   return (
     <div id="hero" className="relative h-screen">
       {/* Background Slideshow */}
       <div className="absolute inset-0">
-        {images.map((image, index) => (
+        {heroImages.map((image, index) => (
           <div
-            key={image}
+            key={image.original}
             className={`absolute inset-0 transition-opacity duration-1000 ${
               index === currentImage ? 'opacity-100' : 'opacity-0'
             }`}
           >
-            <img
-              src={image}
-              alt={`Tregua ambiente ${index + 1}`}
-              className="w-full h-full object-cover"
-            />
+            <picture>
+              <source
+                srcSet={image.webp}
+                type="image/webp"
+                media="(min-width: 640px)"
+              />
+              <source
+                srcSet={image.original}
+                type="image/jpeg"
+                media="(min-width: 640px)"
+              />
+              <img
+                src={image.thumbnail}
+                alt={image.alt}
+                className={`w-full h-full object-cover ${
+                  imagesLoaded[index] ? 'opacity-100' : 'opacity-0'
+                } transition-opacity duration-500`}
+                loading={index === 0 ? 'eager' : 'lazy'}
+              />
+            </picture>
           </div>
         ))}
         {/* Gradient overlay for better text legibility */}

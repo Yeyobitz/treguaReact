@@ -19,11 +19,16 @@ export function Toast({ message, type = 'success', onClose, duration = 5000 }: T
   const borderColor = type === 'success' ? 'border-green-200 dark:border-green-800' : 'border-red-200 dark:border-red-800';
 
   return (
-    <div className={`fixed bottom-4 right-4 z-50 flex items-center ${bgColor} ${textColor} px-4 py-3 rounded-lg border ${borderColor} shadow-lg animate-slide-up`}>
-      <p className="text-sm font-medium mr-8">{message}</p>
+    <div 
+      role="alert"
+      aria-live="polite"
+      className={`fixed bottom-4 right-4 z-50 flex items-center ${bgColor} ${textColor} px-4 py-3 rounded-lg border ${borderColor} shadow-lg animate-slide-up`}
+    >
+      <p className="text-sm font-medium mr-8" data-testid="toast-message">{message}</p>
       <button
         onClick={onClose}
         className="absolute right-2 p-1 rounded-full hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
+        aria-label="Cerrar notificación"
       >
         <X className="w-4 h-4" />
       </button>

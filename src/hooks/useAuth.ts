@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 import { 
   signInWithEmailAndPassword, 
   onAuthStateChanged, 
-  signOut, 
+  signOut,
+  createUserWithEmailAndPassword,
   User as FirebaseUser 
 } from 'firebase/auth';
 import { auth } from '../lib/firebase';
@@ -45,8 +46,46 @@ export function useAuth() {
       }
     });
 
-    return () => unsubscribe();
+    return () => {
+      if (unsubscribe) unsubscribe();
+    };
   }, []);
+
+  const register = async (email: string, password: string) => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      // Validar email
+      if (!email.includes('@')) {
+        throw new Error('Email inválido');
+      }
+
+      // Validar contraseña
+      if (password.length < 6) {
+        throw new Error('La contraseña debe tener al menos 6 caracteres');
+      }
+
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const userData = await getUserData(userCredential.user);
+
+      if (!userData) {
+        throw new Error('Error al crear el usuario');
+      }
+
+      return userData;
+    } catch (err) {
+      console.error('Register error:', err);
+      if (err instanceof Error) {
+        setError(err.message);
+        throw err;
+      }
+      setError('Error en el registro');
+      throw new Error('Error en el registro');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const login = async (email: string, password: string) => {
     try {
@@ -63,8 +102,12 @@ export function useAuth() {
       return userData;
     } catch (err) {
       console.error('Login error:', err);
+      if (err instanceof Error) {
+        setError(err.message);
+        throw err;
+      }
       setError('Error de inicio de sesión');
-      throw err;
+      throw new Error('Error de inicio de sesión');
     } finally {
       setLoading(false);
     }
@@ -72,11 +115,19 @@ export function useAuth() {
 
   const logout = async () => {
     try {
+      setLoading(true);
       await signOut(auth);
       setError(null);
     } catch (err) {
       console.error('Logout error:', err);
+      if (err instanceof Error) {
+        setError(err.message);
+        throw err;
+      }
       setError('Error al cerrar sesión');
+      throw new Error('Error al cerrar sesión');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -87,6 +138,7 @@ export function useAuth() {
     error,
     login,
     logout,
+    register,
     isAdmin: role === 'admin',
     isManager: role === 'manager',
     isCrew: role === 'crew',

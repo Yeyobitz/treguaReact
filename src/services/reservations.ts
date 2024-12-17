@@ -1,36 +1,59 @@
-import { collection, addDoc, getDocs, doc, updateDoc, query, orderBy, getDoc } from 'firebase/firestore';
+import { collection, addDoc, getDocs, doc, updateDoc, query, orderBy, getDoc, deleteDoc } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { CreateReservationDTO, Reservation } from '../types/reservation';
 import { smsService } from './notifications/smsService';
 import { sendCustomerEmail, sendAdminEmail } from './notifications/emailService';
+import { reservationSchema } from '../schemas/reservationSchema';
 
 const COLLECTION = 'reservations';
 
+function validateReservationTime(time: string): boolean {
+  const validTimes = ['12:30', '13:00', '13:30', '14:00', '14:30', '15:00', '19:30', '20:00', '20:30', '21:00', '21:30', '22:00'];
+  return validTimes.includes(time);
+}
+
 export async function createReservation(data: CreateReservationDTO) {
   try {
-    // Ensure the date is stored in ISO format at UTC midnight
+    // Validar los datos con el schema primero
+    const validationResult = reservationSchema.safeParse(data);
+    if (!validationResult.success) {
+      const error = validationResult.error.errors[0];
+      throw new Error(error.message);
+    }
+
+    // Validar fecha en el pasado
     const reservationDate = new Date(data.date);
-    
-    const utcDate = new Date(Date.UTC(
-      reservationDate.getFullYear(),
-      reservationDate.getMonth(),
-      reservationDate.getDate()
-    ));
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    if (reservationDate < today) {
+      throw new Error('No se pueden hacer reservas en fechas pasadas');
+    }
 
-    
-    
+    // Validar horario de reserva
+    if (!validateReservationTime(data.time)) {
+      throw new Error('Horario de reserva no disponible');
+    }
 
-    const docRef = await addDoc(collection(db, COLLECTION), {
-      ...data,
-      date: utcDate.toISOString().split('T')[0], // Store only the date part
-      status: 'pending',
-      createdAt: new Date().toISOString(),
-    });
+    // Store the date as is, without UTC conversion
+    const formattedDate = data.date;
+
+    let docRef;
+    try {
+      docRef = await addDoc(collection(db, COLLECTION), {
+        ...data,
+        date: formattedDate,
+        status: 'pending',
+        createdAt: new Date().toISOString(),
+      });
+    } catch (dbError) {
+      console.error('Database error:', dbError);
+      throw new Error('Error al crear la reserva');
+    }
 
     const reservation = {
       id: docRef.id,
       ...data,
-      date: utcDate.toISOString().split('T')[0],
+      date: formattedDate,
       status: 'pending' as const,
       createdAt: new Date().toISOString()
     };
@@ -41,7 +64,7 @@ export async function createReservation(data: CreateReservationDTO) {
         smsService.sendCustomerSMS('new', reservation),
         smsService.sendAdminSMS(reservation),
         sendCustomerEmail('new', reservation),
-        sendAdminEmail(reservation)  // Add this line
+        sendAdminEmail(reservation)
       ]);
       console.log('Notifications sent successfully');
     } catch (error) {
@@ -50,6 +73,17 @@ export async function createReservation(data: CreateReservationDTO) {
     return docRef.id;
   } catch (error) {
     console.error('Error creating reservation:', error);
+    if (error instanceof Error) {
+      // Si es un error de validación o negocio, propagar el mensaje original
+      if (error.message.includes('No se pueden hacer reservas') ||
+          error.message.includes('Horario de reserva') ||
+          error.message.includes('El número de personas') ||
+          error.message.includes('Formato de teléfono') ||
+          error.message.includes('Error al crear la reserva')) {
+        throw error;
+      }
+    }
+    // Para cualquier otro tipo de error, usar el mensaje genérico
     throw new Error('Error al crear la reserva');
   }
 }
@@ -103,6 +137,9 @@ export async function updateReservationStatus(id: string, status: Reservation['s
     return reservation;
   } catch (error) {
     console.error('Error updating reservation status:', error);
+    if (error instanceof Error) {
+      throw error;
+    }
     throw new Error('Error al actualizar el estado de la reserva');
   }
 }
@@ -143,5 +180,23 @@ export async function cancelReservation(id: string) {
   } catch (error) {
     console.error('Error cancelling reservation:', error);
     throw new Error('Error al cancelar la reserva');
+  }
+}
+
+export async function deleteReservation(id: string) {
+  try {
+    const docRef = doc(db, COLLECTION, id);
+    const docSnap = await getDoc(docRef);
+    
+    if (!docSnap.exists()) {
+      throw new Error('Reservation not found');
+    }
+
+    await deleteDoc(docRef);
+    
+    return true;
+  } catch (error) {
+    console.error('Error deleting reservation:', error);
+    throw new Error('Error al eliminar la reserva');
   }
 }

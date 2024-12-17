@@ -1,11 +1,12 @@
 import { useParams, Link, Navigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { useDishStore } from '../stores/useDishStore';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 export function DishDetail() {
   const { id } = useParams();
   const { dishes, fetchDishes, loading } = useDishStore();
+  const [imageLoaded, setImageLoaded] = useState(false);
   
   useEffect(() => {
     fetchDishes();
@@ -25,14 +26,41 @@ export function DishDetail() {
     return <Navigate to="/" />;
   }
 
+  // Función para obtener URLs optimizadas
+  const getOptimizedImageUrls = (originalUrl: string) => {
+    const baseUrl = originalUrl.split('?')[0];
+    return {
+      webp: `${baseUrl}?auto=format&fit=crop&w=1920&fm=webp&q=80`,
+      thumbnail: `${baseUrl}?auto=format&fit=crop&w=400&q=60`,
+      original: `${baseUrl}?auto=format&fit=crop&w=1920&q=80`
+    };
+  };
+
+  const imageUrls = getOptimizedImageUrls(dish.image);
+
   return (
     <div className="relative min-h-screen">
       <div className="absolute inset-0">
-        <img
-          src={dish.image}
-          alt={dish.name}
-          className="w-full h-full object-cover"
-        />
+        <picture>
+          <source
+            srcSet={imageUrls.webp}
+            type="image/webp"
+            media="(min-width: 640px)"
+          />
+          <source
+            srcSet={imageUrls.original}
+            type="image/jpeg"
+            media="(min-width: 640px)"
+          />
+          <img
+            src={imageUrls.thumbnail}
+            alt={dish.name}
+            onLoad={() => setImageLoaded(true)}
+            className={`w-full h-full object-cover transition-opacity duration-500 ${
+              imageLoaded ? 'opacity-100' : 'opacity-0'
+            }`}
+          />
+        </picture>
         <div className="absolute inset-0 bg-black/60" />
       </div>
       
@@ -54,3 +82,5 @@ export function DishDetail() {
     </div>
   );
 }
+
+export default DishDetail;
