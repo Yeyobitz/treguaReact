@@ -3,31 +3,6 @@ import { Reservation } from '../../types/reservation';
 import { emailTemplates } from './emailTemplates';
 import { NotificationType } from './types';
 import { adminTemplates } from './adminTemplates';
-
-// Interfaz para pruebas de email
-interface TestEmailConfig {
-  to: string;
-  subject: string;
-  message: string;
-}
-
-// Función de prueba para emails
-export const testEmailService = async (config: TestEmailConfig) => {
-  try {
-    console.log('Test email service called with:', config);
-    return {
-      success: true,
-      message: 'Test email simulation successful'
-    };
-  } catch (error) {
-    console.error('Test email error:', error);
-    return {
-      success: false,
-      message: 'Test email simulation failed'
-    };
-  }
-};
-
 const EMAIL_SERVICE_ID = import.meta.env.VITE_EMAILJS_SERVICE_ID;
 const EMAIL_SERVICE_ID_2 = import.meta.env.VITE_EMAILJS_SERVICE_ID_2;
 const EMAIL_TEMPLATE_ID = import.meta.env.VITE_EMAILJS_TEMPLATE_ID;
