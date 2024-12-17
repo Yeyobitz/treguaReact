@@ -4,89 +4,147 @@ Sistema de gestión y reservas para restaurante Tregua, desarrollado con React +
 
 ## 🚀 Características Principales
 
-- **Sistema de Reservas**: Gestión completa de reservaciones con calendario interactivo
-- **Panel Administrativo**: Control total de reservas, platos y usuarios
-- **Autenticación**: Sistema seguro de login para usuarios y administradores
-- **Gestión de Menú**: Administración dinámica de platos y categorías
-- **Diseño Responsivo**: Experiencia óptima en todos los dispositivos
+- **Sistema de Reservas**: 
+  - Reservas en tiempo real con validación de disponibilidad
+  - Notificaciones por email y SMS
+  - Gestión de estados (pendiente, confirmada, cancelada)
+  - Auto-rellenado de datos para usuarios registrados
+  - Cancelación de reservas con confirmación
+
+- **Panel Administrativo**: 
+  - Dashboard con métricas en tiempo real
+  - Gestión completa de reservas
+  - Administración de menú y platos
+  - Control de usuarios y permisos
+  - Exportación de menú a PDF
+
+- **Perfil de Usuario**:
+  - Historial de reservas
+  - Gestión de datos personales
+  - Cancelación de reservas
+  - Vista de estado de reservas
+
+- **Gestión de Menú**:
+  - Categorización de platos
+  - Imágenes con soporte multi-formato
+  - Precios y descripciones
+  - Exportación a PDF con diseño personalizado
 
 ## 🛠️ Tecnologías Utilizadas
 
-- React 18
-- TypeScript
-- Firebase (Auth, Firestore, Storage)
-- Vite
-- TailwindCSS
-- React Router DOM
-- React Hook Form
+- **Frontend**:
+  - React 18
+  - TypeScript
+  - TailwindCSS
+  - React Router DOM v6
+  - Lucide Icons
+  - React Hook Form
+  - Date-fns
+
+- **Backend**:
+  - Firebase Auth
+  - Cloud Firestore
+  - Firebase Storage
+  - Cloud Functions
+
+- **Herramientas**:
+  - Vite
+  - ESLint
+  - Prettier
+  - Vitest
 
 ## 📦 Instalación
 
 1. Clona el repositorio:
+\`\`\`bash
 git clone https://github.com/Yeyobitz/treguaReact.git
+\`\`\`
 
-2. Navega al directorio del proyecto:
+2. Navega al directorio:
+\`\`\`bash
 cd treguaReact
+\`\`\`
 
-3. Instala las dependencias:
+3. Instala dependencias:
+\`\`\`bash
 npm install
+\`\`\`
 
-4. Configura las variables de entorno:
+4. Configura variables de entorno:
+\`\`\`bash
 cp .env.example .env
+\`\`\`
 
-5. Inicia el servidor de desarrollo:
+5. Inicia el servidor:
+\`\`\`bash
 npm run dev
+\`\`\`
 
-## 🔑 Variables de Entorno Requeridas
+## 🔑 Variables de Entorno
 
+\`\`\`env
 VITE_FIREBASE_API_KEY=tu_api_key
 VITE_FIREBASE_AUTH_DOMAIN=tu_auth_domain
 VITE_FIREBASE_PROJECT_ID=tu_project_id
 VITE_FIREBASE_STORAGE_BUCKET=tu_storage_bucket
 VITE_FIREBASE_MESSAGING_SENDER_ID=tu_sender_id
 VITE_FIREBASE_APP_ID=tu_app_id
+VITE_EMAIL_SERVICE_ID=tu_email_service_id
+VITE_EMAIL_TEMPLATE_ID=tu_template_id
+VITE_EMAIL_PUBLIC_KEY=tu_public_key
+\`\`\`
 
-## 📱 Funcionalidades Principales
+## 📱 Funcionalidades Detalladas
 
 ### Sistema de Reservas
-- Calendario interactivo para selección de fecha y hora
-- Validación de disponibilidad en tiempo real
-- Confirmación por correo electrónico
-- Panel de gestión para administradores
+- Selección de fecha y hora con validación
+- Límite de personas por reserva
+- Notificaciones automáticas
+- Validación de horarios disponibles
+- Cancelación con confirmación
 
-### Gestión de Menú
-- CRUD completo de platos y categorías
-- Subida de imágenes
-- Precios y descripciones
-- Categorización flexible
+### Panel de Usuario
+- Vista de reservas activas
+- Historial de reservas pasadas
+- Actualización de datos personales
+- Gestión de reservas propias
 
 ### Panel Administrativo
-- Dashboard con métricas clave
+- Vista de reservas del día
+- Filtros por estado y fecha
+- Exportación de menú y reservas a PDF
 - Gestión de usuarios y roles
-- Historial de reservas
-- Reportes y estadísticas
+- Estadísticas de reservas
+
+## 🔒 Roles y Permisos
+
+- **Admin**: Acceso total al sistema
+- **Manager**: Gestión de reservas y menú
+- **Staff**: Vista de reservas
+- **Usuario**: Gestión de reservas propias
 
 ## 🤝 Contribución
 
-Las contribuciones son bienvenidas. Para cambios importantes:
-
-1. Haz fork del repositorio
-2. Crea una nueva rama (`git checkout -b feature/amazing`)
-3. Commitea tus cambios (`git commit -m 'Add: característica increíble'`)
-4. Push a la rama (`git push origin feature/amazing`)
-5. Abre un Pull Request
+1. Fork del repositorio
+2. Crea rama de feature (\`git checkout -b feature/NuevaCaracteristica\`)
+3. Commit cambios (\`git commit -m 'Add: nueva característica'\`)
+4. Push a la rama (\`git push origin feature/NuevaCaracteristica\`)
+5. Crea un Pull Request
 
 ## 📄 Licencia
 
-Este proyecto está bajo la Licencia MIT - ver el archivo [LICENSE.md](LICENSE.md) para más detalles.
+Este proyecto está bajo la Licencia MIT - ver el archivo [LICENSE.md](LICENSE.md) para detalles.
 
 ## 👥 Equipo
 
-- [@Yeyobitz](https://github.com/Yeyobitz) - Desarrollador Principal
-- [@Champye1](https://github.com/Champye1) - Bases de datos y validaciones
-- [@Rayoid](https://github.com/Rayoid) - Manejo de notificaciones
+- [@Yeyobitz](https://github.com/Yeyobitz) - Desarrollo Frontend y UI/UX
+- [@Champye1](https://github.com/Champye1) - Backend y Base de Datos
+- [@Rayoid](https://github.com/Rayoid) - Notificaciones y Testing
 
-¿Tienes preguntas? Contáctame en [yeyobitz@proton.me](mailto:yeyobitz@proton.me)
+## 📧 Contacto
+
+¿Preguntas o sugerencias? Contáctanos:
+- Email: [yeyobitz@proton.me](mailto:yeyobitz@proton.me)
 
 ---
 
