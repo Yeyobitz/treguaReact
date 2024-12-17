@@ -5,11 +5,7 @@ export function Footer() {
     <footer className="bg-primary py-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col items-center space-y-8">
-          <img 
-            src="/tregua-logo-white.png" 
-            alt="Tregua"
-            className="h-12 opacity-80"
-          />
+
           
           <div className="w-full max-w-md flex flex-col items-center space-y-6 text-neutral/80">
             <div className="flex items-center space-x-2 hover:text-light transition-colors">

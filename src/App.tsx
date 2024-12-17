@@ -20,7 +20,6 @@ const ContactoPage = lazy(() => import('./pages/ContactoPage').then(module => ({
 const AdminLoginPage = lazy(() => import('./pages/admin/AdminLoginPage').then(module => ({ default: module.AdminLoginPage })));
 const AdminLayout = lazy(() => import('./components/admin/AdminLayout').then(module => ({ default: module.AdminLayout })));
 const AdminReservasPage = lazy(() => import('./pages/admin/AdminReservasPage').then(module => ({ default: module.AdminReservasPage })));
-const AdminDishesPage = lazy(() => import('./pages/admin/AdminDishesPage').then(module => ({ default: module.AdminDishesPage })));
 const AdminUsersPage = lazy(() => import('./pages/admin/AdminUsersPage').then(module => ({ default: module.AdminUsersPage })));
 const RegisterPage = lazy(() => import('./pages/RegisterPage').then(module => ({ default: module.RegisterPage })));
 const LoginPage = lazy(() => import('./pages/LoginPage').then(module => ({ default: module.LoginPage })));
@@ -96,7 +95,7 @@ function App() {
               <Route path="reservas" element={<AdminReservasPage />} />
               <Route path="platos" element={
                 <ProtectedRoute requiredRole={['admin', 'manager']}>
-                  <AdminDishesPage />
+                  <AdminUsersPage />
                 </ProtectedRoute>
               } />
               <Route path="usuarios" element={

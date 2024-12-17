@@ -31,13 +31,6 @@ export function Hero() {
     return () => clearInterval(interval);
   }, []);
 
-  // Precargar la siguiente imagen
-  useEffect(() => {
-    const nextIndex = (currentImage + 1) % heroImages.length;
-    const nextImage = new Image();
-    nextImage.src = heroImages[nextIndex].webp;
-  }, [currentImage]);
-
   return (
     <div id="hero" className="relative h-screen">
       {/* Background Slideshow */}
