@@ -1,9 +1,10 @@
-import { Menu, X } from 'lucide-react';
+import { Menu, X, User } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { NavigationItems } from './navigation/NavigationItems';
 import { MobileMenu } from './navigation/MobileMenu';
 import { SocialIcons } from './navigation/SocialIcons';
+import { useAuth } from '../hooks/useAuth';
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -11,6 +12,7 @@ export function Header() {
   const [isHeroVisible, setIsHeroVisible] = useState(true);
   const location = useLocation();
   const isHomePage = location.pathname === '/';
+  const { user, logout } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -49,18 +51,38 @@ export function Header() {
           <div className="flex items-center space-x-6">
             {/* Auth Links */}
             <div className="hidden md:flex items-center space-x-4">
-              <Link 
-                to="/login"
-                className="text-light hover:text-accent transition-colors text-sm tracking-wide"
-              >
-                Iniciar Sesión
-              </Link>
-              <Link 
-                to="/signup"
-                className="px-4 py-2 bg-accent text-light rounded-full hover:bg-accent/90 transition-colors text-sm tracking-wide"
-              >
-                Crear Cuenta
-              </Link>
+              {user ? (
+                <div className="flex items-center space-x-4">
+                  <Link 
+                    to="/perfil"
+                    className="flex items-center space-x-2 text-light hover:text-accent transition-colors text-sm tracking-wide"
+                  >
+                    <User className="w-4 h-4" />
+                    <span>Mi Perfil</span>
+                  </Link>
+                  <button 
+                    onClick={logout}
+                    className="px-4 py-2 border border-light/20 text-light rounded-full hover:bg-light/5 transition-colors text-sm tracking-wide"
+                  >
+                    Cerrar Sesión
+                  </button>
+                </div>
+              ) : (
+                <>
+                  <Link 
+                    to="/login"
+                    className="text-light hover:text-accent transition-colors text-sm tracking-wide"
+                  >
+                    Iniciar Sesión
+                  </Link>
+                  <Link 
+                    to="/signup"
+                    className="px-4 py-2 bg-accent text-light rounded-full hover:bg-accent/90 transition-colors text-sm tracking-wide"
+                  >
+                    Crear Cuenta
+                  </Link>
+                </>
+              )}
             </div>
 
             {/* Social Icons */}
@@ -89,20 +111,44 @@ export function Header() {
         <div className="px-4 py-3 space-y-4">
           {/* Mobile Auth Links */}
           <div className="flex flex-col space-y-2">
-            <Link 
-              to="/login"
-              className="text-light hover:text-accent transition-colors text-sm tracking-wide text-center py-2"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              Iniciar Sesión
-            </Link>
-            <Link 
-              to="/signup"
-              className="px-4 py-2 bg-accent text-light rounded-full hover:bg-accent/90 transition-colors text-sm tracking-wide text-center"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              Crear Cuenta
-            </Link>
+            {user ? (
+              <>
+                <Link 
+                  to="/perfil"
+                  className="flex items-center justify-center space-x-2 text-light hover:text-accent transition-colors text-sm tracking-wide py-2"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  <User className="w-4 h-4" />
+                  <span>Mi Perfil</span>
+                </Link>
+                <button 
+                  onClick={() => {
+                    logout();
+                    setIsMenuOpen(false);
+                  }}
+                  className="w-full px-4 py-2 border border-light/20 text-light rounded-full hover:bg-light/5 transition-colors text-sm tracking-wide"
+                >
+                  Cerrar Sesión
+                </button>
+              </>
+            ) : (
+              <>
+                <Link 
+                  to="/login"
+                  className="text-light hover:text-accent transition-colors text-sm tracking-wide text-center py-2"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Iniciar Sesión
+                </Link>
+                <Link 
+                  to="/signup"
+                  className="px-4 py-2 bg-accent text-light rounded-full hover:bg-accent/90 transition-colors text-sm tracking-wide text-center"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Crear Cuenta
+                </Link>
+              </>
+            )}
           </div>
         </div>
       </MobileMenu>

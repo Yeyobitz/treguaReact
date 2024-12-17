@@ -1,8 +1,8 @@
 import { ArrowRight } from 'lucide-react';
-import { useSmoothScroll } from '../hooks/useSmoothScroll';
+import { useNavigate } from 'react-router-dom';
 
 export function Story() {
-  const { smoothNavigate } = useSmoothScroll();
+  const navigate = useNavigate();
 
   return (
     <section className="relative py-20 bg-light">
@@ -23,7 +23,7 @@ export function Story() {
           </p>
 
           <button 
-            onClick={() => smoothNavigate('/nosotros')}
+            onClick={() => navigate('/nosotros')}
             className="inline-flex items-center text-accent hover:text-accent/80 transition-colors group"
           >
             <span className="border-b border-accent group-hover:border-accent/80">

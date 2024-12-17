@@ -1,8 +1,8 @@
-import { useSmoothScroll } from '../hooks/useSmoothScroll';
 import { Calendar } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 export function ReservationCTA() {
-  const { smoothNavigate } = useSmoothScroll();
+  const navigate = useNavigate();
 
   return (
     <section className="py-20 bg-primary">
@@ -17,7 +17,7 @@ export function ReservationCTA() {
           
           <div className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-6">
             <button
-              onClick={() => smoothNavigate('/reservas')}
+              onClick={() => navigate('/reservas')}
               className="inline-flex items-center px-8 py-3 bg-accent text-light rounded-full hover:bg-accent/90 transition-colors group"
             >
               <Calendar className="w-5 h-5 mr-2 transform group-hover:scale-110 transition-transform" />
@@ -25,7 +25,7 @@ export function ReservationCTA() {
             </button>
             
             <button
-              onClick={() => smoothNavigate('/platos')}
+              onClick={() => navigate('/platos')}
               className="inline-flex items-center px-8 py-3 border border-neutral/20 text-light rounded-full hover:bg-light/5 transition-colors text-sm tracking-wide"
             >
               Ver Menú
